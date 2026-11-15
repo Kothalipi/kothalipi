@@ -67,7 +67,8 @@ cargo run -p kothalipi-cli -- translit "আমি বাংলায় কথ�
 |---|---|
 | [`crates/kothalipi-core`](crates/kothalipi-core) | Shared engine: audio, VAD, speech engines, Banglish transliteration |
 | [`crates/kothalipi-cli`](crates/kothalipi-cli) | `kothalipi` command-line prototype |
-| [`apps/`](apps) | Native apps per platform (planned) |
+| [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop) | macOS, Windows, Linux app (fork of [Handy](https://github.com/cjpais/Handy)) with Bangla models and Banglish |
+| [`apps/`](apps) | Android and iOS keyboards (planned) |
 | [`docs/`](docs) | [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), [Models & accuracy](docs/MODELS.md) |
 | [`assets/brand`](assets/brand) | Logo, icons, colors |
 

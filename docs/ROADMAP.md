@@ -13,26 +13,25 @@ Order matters: prove Bangla accuracy first, then build UIs.
 - [ ] Pick the default Bangla model
 - [ ] In-process whisper.cpp (whisper-rs) instead of a subprocess
 
-## Phase 2: macOS menu bar app
-- [ ] UniFFI bindings for Swift
-- [ ] Menu bar app, global hotkey, mode switcher (Bangla / English / Banglish)
-- [ ] Insert text via Accessibility API
-- [ ] Onboarding for Microphone + Accessibility permissions
-- [ ] Signed + notarized release
+## Phase 2: Desktop app (macOS, Windows, Linux), built on Handy
+See [decision 0001](decisions/0001-desktop-on-handy.md) and
+[kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop).
+- [x] Fork Handy, rebrand, new app id
+- [x] Bangla models first: Qwen3-ASR 0.6B Bangla, Bengali.AI Whisper medium
+- [x] Banglish output via `kothalipi-core`
+- [ ] Per-language hotkeys (Bangla / English / Banglish)
+- [ ] Bangla UI translation
+- [ ] Own signing keys, CI builds, signed + notarized release
 
-## Phase 3: Windows
-- [ ] Tray app, `RegisterHotKey`, `SendInput` Unicode injection
-- [ ] Installer (MSI or MSIX)
+## Phase 3: Public Bangla benchmark
+- [ ] Open test set (read, phone, mixed Bangla-English)
+- [ ] Compare all Bangla models, publish results
 
 ## Phase 4: Android keyboard
 - [ ] UniFFI Kotlin bindings, `InputMethodService`, mic button
 - [ ] Model download on first run
 
-## Phase 5: Linux (best effort)
-- [ ] X11 via XTest
-- [ ] Wayland via IBus/Fcitx5 engine or `wtype`
-
-## Phase 6: iOS
+## Phase 5: iOS
 - [ ] Keyboard extension + host app recording flow
 
 ## Later

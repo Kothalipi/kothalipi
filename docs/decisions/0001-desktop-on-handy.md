@@ -1,6 +1,6 @@
 # 0001: Build the desktop app on Handy
 
-- **Status:** proposed
+- **Status:** accepted, implemented in [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop)
 - **Date:** 2026-11-16
 
 ## Context
@@ -61,8 +61,9 @@ model through `transcribe-cpp` (GGUF/ggml) with Metal on Apple Silicon and Vulka
 
 ## Next steps
 
-1. Fork Handy, rebrand (name, icons, bundle id), keep builds green on all three OSes.
-2. Add Bangla models to the model catalog (convert Bengali.AI medium to GGUF/ggml).
+1. ~~Fork Handy, rebrand (name, icons, bundle id).~~ Done.
+2. ~~Add Bangla models (Qwen3-ASR 0.6B Bangla, Bengali.AI Whisper medium).~~ Done.
 3. Add per-language hotkeys: Bangla, English, Banglish.
-4. Wire `kothalipi-core` for Banglish + Bangla text cleanup.
+4. ~~Wire `kothalipi-core` for Banglish.~~ Done (BanglaScript setting). Bangla text cleanup next.
 5. Build the public eval set and publish the first comparison table.
+6. Own signing keys, CI builds and the first release on all three OSes.
