@@ -6,11 +6,13 @@
 //! Rules:
 //! - Every consonant carries an inherent "o" (ক = ko) unless it is followed by
 //!   a vowel sign (কা = ka), a hasanta (ক্ = k), or ends the word (ভাত = bhat).
+//! - Mid-word schwa deletion: the inherent "o" is dropped between a vowel and a
+//!   consonant that carries its own vowel sign (আজকে = ajke, দরকার = dorkar).
 //! - Ya-phala (্য) becomes "y".
 //! - Bangla digits and the dari (।) map to ASCII.
 //!
-//! Known gaps (good first issues!): mid-word schwa deletion (করব → korob, not
-//! korbo), and juktakkhor with special spoken forms (ক্ষ, জ্ঞ).
+//! Known gaps (good first issues!): a spoken final "o" that isn't written
+//! (করব → korob, not korbo), and juktakkhor with special spoken forms (ক্ষ, জ্ঞ).
 
 const HASANTA: char = '\u{09CD}';
 
@@ -20,6 +22,8 @@ pub fn to_banglish(input: &str) -> String {
     let chars: Vec<char> = normalized.chars().collect();
     let mut out = String::with_capacity(input.len());
     let mut prev_hasanta = false;
+    // Whether the sound just written in this word ends in a vowel.
+    let mut after_vowel = false;
     let mut i = 0;
 
     while i < chars.len() {
@@ -39,18 +43,29 @@ pub fn to_banglish(input: &str) -> String {
             match next {
                 Some(n) if vowel_sign(n).is_some() => {
                     out.push_str(vowel_sign(n).unwrap_or_default());
+                    after_vowel = true;
                     i += 2;
                 }
                 Some(HASANTA) => {
                     prev_hasanta = true;
+                    after_vowel = false;
                     i += 2;
                 }
                 Some(n) if is_bangla_letter(n) => {
-                    out.push('o');
+                    // V·C·CV: the inherent vowel is silent (আজকে → ajke).
+                    let next_has_vowel_sign = consonant(n).is_some()
+                        && chars.get(i + 2).is_some_and(|&v| vowel_sign(v).is_some());
+                    if after_vowel && next_has_vowel_sign {
+                        after_vowel = false;
+                    } else {
+                        out.push('o');
+                        after_vowel = true;
+                    }
                     i += 1;
                 }
                 _ => {
                     // Word-final consonant: inherent vowel is silent (ভাত → bhat).
+                    after_vowel = false;
                     i += 1;
                 }
             }
@@ -60,16 +75,23 @@ pub fn to_banglish(input: &str) -> String {
         prev_hasanta = false;
         if let Some(v) = independent_vowel(c) {
             out.push_str(v);
+            after_vowel = true;
         } else if let Some(m) = modifier(c) {
             out.push_str(m);
+            // ং and ঃ close the syllable; chandrabindu (ঁ) only nasalises it.
+            if c != 'ঁ' {
+                after_vowel = false;
+            }
         } else if let Some(d) = digit(c) {
             out.push(d);
         } else if c == '।' {
             out.push('.');
+            after_vowel = false;
         } else if c == '\u{200C}' || c == '\u{200D}' {
             // zero-width joiners: drop
         } else {
             out.push(c);
+            after_vowel = false;
         }
         i += 1;
     }
@@ -193,6 +215,12 @@ mod tests {
             ("বাংলাদেশ", "bangladesh"),
             ("বন্ধু", "bondhu"),
             ("কথালিপি", "kothalipi"),
+            ("আজকে", "ajke"),
+            ("দরকার", "dorkar"),
+            ("দেখবো", "dekhbo"),
+            ("আমরা", "amra"),
+            ("কলম", "kolom"),
+            ("আছে", "achhe"),
         ] {
             assert_eq!(to_banglish(bn), en, "{bn}");
         }
