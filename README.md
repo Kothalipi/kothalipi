@@ -8,6 +8,13 @@
   Bangla-first. Every language welcome.
 </p>
 
+<p align="center">
+  <a href="https://github.com/Kothalipi/kothalipi/actions/workflows/ci.yml"><img src="https://github.com/Kothalipi/kothalipi/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-006A4E" alt="MIT license"></a>
+  <a href="https://github.com/Kothalipi/kothalipi/discussions"><img src="https://img.shields.io/badge/discussions-join-F42A41" alt="Discussions"></a>
+  <a href="https://kothalipi.tashanto.com"><img src="https://img.shields.io/badge/website-kothalipi.tashanto.com-16211C" alt="Website"></a>
+</p>
+
 ---
 
 ## What is Kothalipi?
