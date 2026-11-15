@@ -1,6 +1,6 @@
 [package]
 name = "kothalipi-core"
-description = "Shared core for Kothalipi: audio, VAD, speech engines and Bangla/Banglish text processing"
+description = "Shared core for Kothalipi: audio, VAD, speech engines and Bangla/English text processing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

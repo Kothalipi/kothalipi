@@ -6,7 +6,7 @@ Writing five separate apps means five codebases. Putting everything in Electron 
 Flutter makes the app heavy and slow. So Kothalipi splits the work:
 
 - **Rust core (`kothalipi-core`)**: audio capture, voice activity detection (VAD),
-  speech-to-text inference, and text processing (Bangla / English / Banglish).
+  speech-to-text inference, and text processing (Bangla / English).
 - **Native shells**: each platform's own language for UI, hotkeys and inserting
   text into other apps.
 
@@ -15,8 +15,7 @@ Flutter makes the app heavy and slow. So Kothalipi splits the work:
 │ audio   : load / capture, mix to mono, resample to 16 kHz       │
 │ vad     : find speech start/end (energy now, neural later)     │
 │ engine  : SpeechEngine trait → whisper.cpp, sherpa-onnx, cloud │
-│ mode    : Bangla | English | Banglish, final cleanup           │
-│ translit: Bangla script → Banglish                             │
+│ mode    : Bangla | English, final cleanup                      │
 └──────────────────────────────▲─────────────────────────────────┘
                                │ UniFFI (Swift, Kotlin) / direct (Rust)
 ```
@@ -48,14 +47,15 @@ not on the programming language.
 **Plan:** on-device by default, optional cloud engine. All engines sit behind the
 `SpeechEngine` trait, so apps never care which one is running.
 
-## Bangla, English and Banglish
+## Bangla and English
 
-- **Bangla mode:** recognise `bn`, keep Bangla script, keep the dari (।).
-- **English mode:** recognise `en`.
-- **Banglish mode:** recognise `bn`, then transliterate to romanized Bangla in the core
-  (`translit.rs`). Doing it in the core means every platform gets identical Banglish.
+- **Bangla key:** recognise `bn` with a Bangla model, keep Bangla script and the dari (।).
+  English words said in the same sentence are expected; Cloud mode (Gemini) handles them best.
+- **English key:** recognise `en` with an English model.
 - **Code-switching** (Bangla sentences with English words) is the hard part. Track it in
   the accuracy test set (`samples/mx-*`) from day one.
+- Banglish (romanized Bangla) was tried and dropped: rule-based transliteration isn't good
+  enough, and two keys keep setup simple.
 
 ## Permissions users must grant
 

@@ -4,8 +4,8 @@
 
 <p align="center">
   <b>Speak. It's written.</b> · <b>বলুন, লেখা হয়ে যাবে।</b><br>
-  Open-source voice typing for macOS, Windows, Linux, Android and iOS.<br>
-  Bangla-first. Every language welcome.
+  Open-source voice typing in Bangla and English, in any app.<br>
+  macOS · Windows · Linux, with Android and iOS on the way.
 </p>
 
 <p align="center">
@@ -19,70 +19,71 @@
 
 ## What is Kothalipi?
 
-Kothalipi (কথালিপি, "speech-script") turns your voice into text in **any app**:
-press a hotkey (or the mic on your keyboard), speak, and the text appears where your cursor is.
+Kothalipi (কথালিপি, "speech-script") turns your voice into text in **any app**. Hold a key,
+speak, let go, and the text appears where your cursor is.
 
-| Mode | You say | You get |
-|---|---|---|
-| **Bangla** | আমি ভাত খাই | আমি ভাত খাই। |
-| **English** | I'm eating rice | I'm eating rice. |
-| **Banglish** | আমি ভাত খাই | ami bhat khai. |
+| Key | macOS | Windows | You get |
+|---|---|---|---|
+| **বাংলা** | Right ⌘ Command | Right Alt | Bangla in Bangla script (mixing in English works) |
+| **English** | fn | Right Ctrl | Clean English |
 
-- **Private by default.** Speech recognition runs on your device. Cloud engines are optional.
-- **Fast and light.** A shared Rust core, native apps per platform (no Electron).
-- **Built in the open.** Started in Bangladesh 🇧🇩, designed so any community can add its language.
+- **Free offline, or cloud.** Offline runs a Bangla model on your computer. Cloud uses your own
+  Google Gemini (free tier) or OpenAI key and is the most accurate for mixed Bangla and English.
+- **Never stops typing.** Gemini → ChatGPT → offline: when a key is over its limit or you're
+  offline, Kothalipi moves to the next.
+- **Light and fast.** Rust, low memory, quiet in the background.
+- **Open source.** MIT. Started in Bangladesh 🇧🇩, open to every language.
 
-> **Status:** early. Phase 1 (CLI prototype to measure Bangla accuracy) is in progress.
-
-## Try the prototype
+## Install
 
 ```bash
-# 1. Install whisper.cpp (macOS shown; see models/README.md for others)
-brew install whisper-cpp
-
-# 2. Get a model into models/ (see models/README.md)
-export KOTHALIPI_MODEL=models/ggml-small.bin
-
-# 3. Transcribe
-cargo run -p kothalipi-cli -- transcribe samples/hello.wav --mode bangla
-cargo run -p kothalipi-cli -- transcribe samples/hello.wav --mode banglish
-
-# Bangla → Banglish without audio
-cargo run -p kothalipi-cli -- translit "আমি বাংলায় কথা বলি।"
-# ami banglay kotha boli.
+curl -fsSL https://kothalipi.tashanto.com/install.sh | sh      # macOS, Linux
 ```
 
-## How it's built
+```powershell
+irm https://kothalipi.tashanto.com/install.ps1 | iex           # Windows
+```
 
-```
-            ┌──────────────── kothalipi-core (Rust) ────────────────┐
- mic ──────►│ audio → VAD → speech engine → mode (bn/en/banglish)  │──► text
-            └───────────────────────────────▲───────────────────────┘
-                                             │ UniFFI bindings
-   macOS (Swift) · Windows (Rust) · Linux (Rust) · Android (Kotlin) · iOS (Swift)
-            hotkey / keyboard UI + inserting text into other apps
-```
+Or download from [kothalipi.tashanto.com](https://kothalipi.tashanto.com/download.html).
+Guides: [macOS](https://kothalipi.tashanto.com/docs/macos.html) ·
+[Windows](https://kothalipi.tashanto.com/docs/windows.html) ·
+[Linux](https://kothalipi.tashanto.com/docs/linux.html) ·
+[Cloud & API keys](https://kothalipi.tashanto.com/docs/cloud.html).
+
+## Repositories
+
+| Repo | What |
+|---|---|
+| [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop) | **The app** for macOS, Windows and Linux. Built on [Handy](https://github.com/cjpais/Handy) with Bangla models, language keys, cloud fallback and a Kothalipi onboarding |
+| **kothalipi** (this repo) | Shared Rust core for the coming mobile apps, CLI for model testing, docs, roadmap, brand |
+| [website](https://github.com/Kothalipi/website) | [kothalipi.tashanto.com](https://kothalipi.tashanto.com) and the install scripts |
+
+## This repo
 
 | Path | What |
 |---|---|
-| [`crates/kothalipi-core`](crates/kothalipi-core) | Shared engine: audio, VAD, speech engines, Banglish transliteration |
-| [`crates/kothalipi-cli`](crates/kothalipi-cli) | `kothalipi` command-line prototype |
-| [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop) | macOS, Windows, Linux app (fork of [Handy](https://github.com/cjpais/Handy)) with Bangla models and Banglish |
+| [`crates/kothalipi-core`](crates/kothalipi-core) | Audio, VAD, speech-engine trait, Bangla/English modes |
+| [`crates/kothalipi-cli`](crates/kothalipi-cli) | `kothalipi` CLI for testing models on recordings |
 | [`apps/`](apps) | Android and iOS keyboards (planned) |
-| [`docs/`](docs) | [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), [Models & accuracy](docs/MODELS.md) |
+| [`docs/`](docs) | [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), [Models & accuracy](docs/MODELS.md), [Decisions](docs/decisions) |
 | [`assets/brand`](assets/brand) | Logo, icons, colors |
+
+```bash
+cargo test --workspace
+cargo run -p kothalipi-cli -- transcribe samples/hello.wav --mode bangla --model models/ggml-small.bin
+```
 
 ## Contributing
 
 We especially need:
 
-- 🎙️ **Bangla voice samples** with correct transcripts (for the accuracy test set)
-- 🔤 **Banglish rules**: help the transliterator sound like real chat Banglish
+- 🎙️ **Bangla voice samples** with correct transcripts (for a public accuracy benchmark)
+- 📊 **Model testing**: compare Bangla models on real speech
 - 🌍 **New languages**: see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-language)
-- 🍎🪟🐧🤖 **Platform developers** for the native apps
+- 📱 **Mobile developers** for the Android and iOS keyboards
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md) to get started.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](LICENSE). The Hind Siliguri font used in the logo is under the [SIL Open Font License](assets/brand/fonts/HindSiliguri-OFL.txt).
+[MIT](LICENSE). The Hind Siliguri font in the logo is under the [SIL Open Font License](assets/brand/fonts/HindSiliguri-OFL.txt).

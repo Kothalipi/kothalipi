@@ -3,8 +3,7 @@
 //! Phase 1 goal: measure Bangla accuracy before building any UI.
 //!
 //! ```text
-//! kothalipi transcribe sample.wav --mode banglish --model models/ggml-small.bin
-//! kothalipi translit "আমি ভাত খাই।"
+//! kothalipi transcribe sample.wav --mode bangla --model models/ggml-small.bin
 //! kothalipi vad sample.wav
 //! ```
 
@@ -15,7 +14,6 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use kothalipi_core::audio::load_wav;
 use kothalipi_core::engine::{SpeechEngine, WhisperCli};
-use kothalipi_core::translit::to_banglish;
 use kothalipi_core::vad::EnergyVad;
 use kothalipi_core::Mode;
 
@@ -23,7 +21,7 @@ use kothalipi_core::Mode;
 #[command(
     name = "kothalipi",
     version,
-    about = "Kothalipi: speak in Bangla, English or Banglish, get text."
+    about = "Kothalipi: speak Bangla or English, get text."
 )]
 struct Cli {
     #[command(subcommand)]
@@ -36,7 +34,7 @@ enum Command {
     Transcribe {
         /// Input WAV file (any sample rate, mono or stereo).
         wav: PathBuf,
-        /// Output mode: bangla, english or banglish.
+        /// Output mode: bangla or english.
         #[arg(long, short, default_value = "bangla")]
         mode: Mode,
         /// whisper.cpp ggml model file.
@@ -48,12 +46,6 @@ enum Command {
         /// CPU threads for whisper.cpp.
         #[arg(long, short)]
         threads: Option<u32>,
-    },
-    /// Convert Bangla script to Banglish.
-    Translit {
-        /// Bangla text.
-        #[arg(required = true)]
-        text: Vec<String>,
     },
     /// Show where speech is detected in a WAV file.
     Vad { wav: PathBuf },
@@ -85,7 +77,6 @@ fn main() -> Result<()> {
                 elapsed / audio.duration_secs().max(0.001),
             );
         }
-        Command::Translit { text } => println!("{}", to_banglish(&text.join(" "))),
         Command::Vad { wav } => {
             let audio = load_wav(&wav).with_context(|| format!("reading {}", wav.display()))?;
             let segments = EnergyVad::default().segments(&audio.samples, audio.sample_rate);

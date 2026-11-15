@@ -6,6 +6,6 @@ labels: language
 
 **Language (and ISO 639-1 code):**
 
-**Is there a common romanized form?** (e.g. Banglish, Hinglish, Arabizi)
+**Is there a common romanized form?** (e.g. Hinglish, Arabizi)
 
 **Can you help?** (samples / testing / code / maintaining)

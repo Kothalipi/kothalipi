@@ -6,7 +6,6 @@ Order matters: prove Bangla accuracy first, then build UIs.
 - [x] Rust workspace, `kothalipi-core` + `kothalipi` CLI
 - [x] WAV loading, resampling, energy VAD
 - [x] whisper.cpp engine (via `whisper-cli`)
-- [x] Bangla → Banglish transliteration v0
 - [ ] Live microphone capture (cpal) + push-to-talk in the CLI
 - [ ] Accuracy test set: 100+ Bangla, English and mixed sentences
 - [ ] `kothalipi eval` command: WER/CER per model
@@ -18,8 +17,10 @@ See [decision 0001](decisions/0001-desktop-on-handy.md) and
 [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop).
 - [x] Fork Handy, rebrand, new app id
 - [x] Bangla models first: Qwen3-ASR 0.6B Bangla, Bengali.AI Whisper medium
-- [x] Banglish output via `kothalipi-core`
-- [ ] Per-language hotkeys (Bangla / English / Banglish)
+- [x] Per-language keys (Bangla / English), each with its own model
+- [x] Cloud mode: Gemini → OpenAI → offline fallback, key checks
+- [x] Kothalipi onboarding (offline or cloud, keys, models, key conflicts)
+- [x] Release pipeline for macOS, Windows, Linux; terminal installers
 - [ ] Bangla UI translation
 - [ ] Own signing keys, CI builds, signed + notarized release
 

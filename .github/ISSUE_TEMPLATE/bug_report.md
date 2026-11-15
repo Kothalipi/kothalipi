@@ -14,5 +14,5 @@ labels: bug
 **Environment**
 - OS and version:
 - Kothalipi version / commit:
-- Mode (bangla / english / banglish):
+- Mode (bangla / english), offline or cloud:
 - Model:

@@ -35,15 +35,15 @@ model through `transcribe-cpp` (GGUF/ggml) with Metal on Apple Silicon and Vulka
    hand-written Swift/Win32/GTK shells planned in `ARCHITECTURE.md` for desktop.
 2. **Mobile (Android, iOS): stays native** (Kotlin keyboard, Swift keyboard extension) using
    `kothalipi-core` through UniFFI. Handy does not target mobile.
-3. **`kothalipi-core` becomes the shared Bangla layer** used by both: modes, Banglish
-   transliteration, Bangla text cleanup, evaluation tools.
+3. **`kothalipi-core` becomes the shared Bangla layer** used by both: modes, Bangla text
+   cleanup, evaluation tools.
 
 ## How Kothalipi will be better than Shobdo
 
 | | Shobdo | Kothalipi |
 |---|---|---|
 | Source code | Closed (releases only) | Fully open (MIT), community-driven |
-| Output modes | Bangla, English | Bangla, English, **Banglish** |
+| Cloud | Gemini only | Gemini → OpenAI → offline, automatic fallback |
 | Platforms | Mac, Windows | Mac, Windows, **Linux, Android, iOS** |
 | Offline models | One (Whisper medium, ~830 MB) | A **catalog**: Bengali.AI medium, Bengali.AI regional (dialects), smaller/faster options such as Qwen3-ASR-0.6B-Bengali (GGUF), pick by speed vs accuracy |
 | Benchmark | Private test set | **Public, reproducible** eval set + `kothalipi eval`, results published |
@@ -63,7 +63,7 @@ model through `transcribe-cpp` (GGUF/ggml) with Metal on Apple Silicon and Vulka
 
 1. ~~Fork Handy, rebrand (name, icons, bundle id).~~ Done.
 2. ~~Add Bangla models (Qwen3-ASR 0.6B Bangla, Bengali.AI Whisper medium).~~ Done.
-3. Add per-language hotkeys: Bangla, English, Banglish.
-4. ~~Wire `kothalipi-core` for Banglish.~~ Done (BanglaScript setting). Bangla text cleanup next.
+3. ~~Per-language keys: Bangla, English.~~ Done.
+4. Banglish was built, then dropped (not good enough to ship). Bangla text cleanup next.
 5. Build the public eval set and publish the first comparison table.
 6. Own signing keys, CI builds and the first release on all three OSes.

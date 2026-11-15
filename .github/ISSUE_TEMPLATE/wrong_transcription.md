@@ -1,10 +1,10 @@
 ---
-name: Wrong transcription or Banglish
+name: Wrong transcription
 about: Kothalipi wrote the wrong words
 labels: accuracy
 ---
 
-**Mode:** bangla / english / banglish
+**Key:** bangla / english · **Mode:** offline / cloud
 
 **What you said (exact words):**
 

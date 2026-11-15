@@ -7,8 +7,8 @@ Issues and PRs are welcome in **English or Bangla**.
 
 - **Record samples:** read sentences in Bangla, English or mixed, with a correct transcript.
   Only contribute your own voice or voices with clear consent.
-- **Improve Banglish:** open an issue with words that come out wrong
-  (`kothalipi translit "…"` → what you expected).
+- **Report wrong words:** open a *Wrong transcription* issue with what you said and what
+  Kothalipi typed.
 - **Test models:** run the CLI with different models and report accuracy (see `docs/MODELS.md`).
 - **Code:** core features, platform apps, docs. Check issues labelled `good first issue`.
 
@@ -39,8 +39,8 @@ cargo test --workspace
 
 1. Open a **Language request** issue so others can join.
 2. Add a `Language` variant (ISO 639-1 code) in `crates/kothalipi-core/src/mode.rs`.
-3. If the language has a common romanized form (like Banglish, Hinglish, Arabizi), add a
-   transliterator module next to `translit.rs`, with tests from real chat usage.
+3. If the language has a common romanized form (like Hinglish or Arabizi), note it in
+   the issue; a transliteration option can be discussed there.
 4. Add test samples and record accuracy in `docs/MODELS.md`.
 5. Become that language's maintainer if you like. We will add you to a language team.
 

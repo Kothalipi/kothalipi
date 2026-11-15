@@ -1,7 +1,6 @@
 use std::fmt;
 use std::str::FromStr;
 
-use crate::translit::to_banglish;
 use crate::Error;
 
 /// The spoken language the speech engine should listen for.
@@ -26,35 +25,29 @@ impl Language {
 
 /// What the user wants typed out.
 ///
-/// - `Bangla`: speak Bangla, get Bangla script (আমি ভাত খাই)
+/// - `Bangla`: speak Bangla (mixing in English is fine), get Bangla script
 /// - `English`: speak English, get English
-/// - `Banglish`: speak Bangla, get romanized Bangla (ami bhat khai)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Mode {
     #[default]
     Bangla,
     English,
-    Banglish,
 }
 
 impl Mode {
-    pub const ALL: [Mode; 3] = [Mode::Bangla, Mode::English, Mode::Banglish];
+    pub const ALL: [Mode; 2] = [Mode::Bangla, Mode::English];
 
     /// Which language the speech engine should recognise for this mode.
     pub fn language(self) -> Language {
         match self {
-            Mode::Bangla | Mode::Banglish => Language::Bangla,
+            Mode::Bangla => Language::Bangla,
             Mode::English => Language::English,
         }
     }
 
     /// Turn raw engine output into the final text that gets typed.
     pub fn finalize(self, raw: &str) -> String {
-        let text = normalize_whitespace(raw);
-        match self {
-            Mode::Bangla | Mode::English => text,
-            Mode::Banglish => to_banglish(&text),
-        }
+        normalize_whitespace(raw)
     }
 }
 
@@ -63,7 +56,6 @@ impl fmt::Display for Mode {
         f.write_str(match self {
             Mode::Bangla => "bangla",
             Mode::English => "english",
-            Mode::Banglish => "banglish",
         })
     }
 }
@@ -75,9 +67,8 @@ impl FromStr for Mode {
         match s.trim().to_ascii_lowercase().as_str() {
             "bangla" | "bn" | "bengali" => Ok(Mode::Bangla),
             "english" | "en" => Ok(Mode::English),
-            "banglish" | "romanized" => Ok(Mode::Banglish),
             other => Err(Error::Invalid(format!(
-                "unknown mode `{other}` (use bangla, english or banglish)"
+                "unknown mode `{other}` (use bangla or english)"
             ))),
         }
     }
@@ -96,19 +87,18 @@ mod tests {
     fn parses_modes() {
         assert_eq!("Bangla".parse::<Mode>().unwrap(), Mode::Bangla);
         assert_eq!("en".parse::<Mode>().unwrap(), Mode::English);
-        assert_eq!("banglish".parse::<Mode>().unwrap(), Mode::Banglish);
+        assert!("banglish".parse::<Mode>().is_err());
         assert!("klingon".parse::<Mode>().is_err());
     }
 
     #[test]
-    fn banglish_mode_listens_for_bangla() {
-        assert_eq!(Mode::Banglish.language(), Language::Bangla);
+    fn modes_pick_their_language() {
+        assert_eq!(Mode::Bangla.language(), Language::Bangla);
         assert_eq!(Mode::English.language().code(), "en");
     }
 
     #[test]
-    fn finalize_cleans_and_transliterates() {
+    fn finalize_cleans_whitespace() {
         assert_eq!(Mode::Bangla.finalize("  আমি\n ভাত  খাই। "), "আমি ভাত খাই।");
-        assert_eq!(Mode::Banglish.finalize("আমি\nভাত খাই।"), "ami bhat khai.");
     }
 }
