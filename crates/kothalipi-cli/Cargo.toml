@@ -1,0 +1,17 @@
+[package]
+name = "kothalipi-cli"
+description = "Command-line prototype for Kothalipi voice typing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "kothalipi"
+path = "src/main.rs"
+
+[dependencies]
+kothalipi-core.workspace = true
+clap.workspace = true
+anyhow.workspace = true

@@ -1,0 +1,18 @@
+[workspace]
+members = ["crates/kothalipi-core", "crates/kothalipi-cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/Kothalipi/kothalipi"
+homepage = "https://github.com/Kothalipi"
+authors = ["Kothalipi contributors"]
+
+[workspace.dependencies]
+kothalipi-core = { path = "crates/kothalipi-core" }
+thiserror = "2"
+hound = "3.5"
+clap = { version = "4", features = ["derive", "env"] }
+anyhow = "1"

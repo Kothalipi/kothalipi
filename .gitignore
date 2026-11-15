@@ -1,0 +1,17 @@
+/target
+**/*.rs.bk
+.DS_Store
+
+# Models are large: download them, never commit them
+/models/*
+!/models/README.md
+
+# Voice recordings may be personal
+/samples/*
+!/samples/README.md
+
+# Platform build output
+/apps/**/build/
+/apps/**/.gradle/
+/apps/**/DerivedData/
+*.xcuserstate
