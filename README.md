@@ -65,7 +65,7 @@ Guides: [macOS](https://kothalipi.tashanto.com/docs/macos.html) ·
 | [`crates/kothalipi-core`](crates/kothalipi-core) | Audio, VAD, speech-engine trait, Bangla/English modes |
 | [`crates/kothalipi-cli`](crates/kothalipi-cli) | `kothalipi` CLI for testing models on recordings |
 | [`apps/`](apps) | Android and iOS keyboards (planned) |
-| [`docs/`](docs) | [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), [Models & accuracy](docs/MODELS.md), [Decisions](docs/decisions) |
+| [`docs/`](docs) | [Audit](docs/AUDIT.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md), [Models & accuracy](docs/MODELS.md), [Decisions](docs/decisions) |
 | [`assets/brand`](assets/brand) | Logo, icons, colors |
 
 ```bash
