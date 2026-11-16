@@ -18,7 +18,7 @@ class Dictation(private val context: Context, private val prefs: Prefs, private 
         fun onLevel(level: Float)
         fun onPartial(text: String)
         fun onText(text: String)
-        fun onNotice(notice: Notice)
+        fun onNotice(notice: Notice, detail: String? = null)
     }
 
     private val main = Handler(Looper.getMainLooper())
@@ -73,8 +73,15 @@ class Dictation(private val context: Context, private val prefs: Prefs, private 
             main.post {
                 set(State.IDLE)
                 when (result) {
-                    is Outcome.Ok -> listener.onText(result.text)
-                    is Outcome.Failed -> { forceDeviceOnce = true; listener.onNotice(Notice.CLOUD_FAILED) }
+                    is Outcome.Ok -> {
+                        prefs.recordOk(result.provider, pcmSeconds(pcm))
+                        listener.onText(result.text)
+                    }
+                    is Outcome.Failed -> {
+                        result.reasons.forEach { prefs.recordFailed(it.provider, if (it.kind == Failure.RATE_LIMITED) it.message else null) }
+                        forceDeviceOnce = true
+                        listener.onNotice(Notice.CLOUD_FAILED, result.summary)
+                    }
                 }
             }
         }.start()

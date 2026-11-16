@@ -10,9 +10,14 @@ import java.util.UUID
 
 enum class Failure { BAD_KEY, RATE_LIMITED, SERVER, NETWORK, BAD_RESPONSE }
 
+/** Why one engine failed, with a sentence for the user. */
+data class Reason(val provider: Provider, val kind: Failure, val message: String, val scope: String? = null)
+
 sealed class Outcome {
     data class Ok(val text: String, val provider: Provider) : Outcome()
-    data class Failed(val reasons: List<Pair<Provider, Failure>>) : Outcome()
+    data class Failed(val reasons: List<Reason>) : Outcome() {
+        val summary: String get() = reasons.joinToString(" ") { it.message }
+    }
 }
 
 /** Gemini and OpenAI speech-to-text with the user's own key. Mirrors the desktop app. */
@@ -36,7 +41,14 @@ object CloudStt {
     fun geminiText(json: JSONObject): String? {
         val parts = json.optJSONArray("candidates")?.optJSONObject(0)
             ?.optJSONObject("content")?.optJSONArray("parts") ?: return null
-        return buildString { for (i in 0 until parts.length()) append(parts.getJSONObject(i).optString("text")) }
+        // gemini-3.5-transcribe replies with parts[].audioTranscription.text;
+        // general Gemini models use parts[].text.
+        return buildString {
+            for (i in 0 until parts.length()) {
+                val p = parts.getJSONObject(i)
+                append(p.optJSONObject("audioTranscription")?.optString("text") ?: p.optString("text"))
+            }
+        }
     }
 
     fun classify(status: Int): Failure = when {
@@ -48,7 +60,7 @@ object CloudStt {
 
     /** Tries each engine in order; the first transcript wins. */
     fun transcribe(wav: ByteArray, lang: String, engines: List<Pair<Provider, String>>): Outcome {
-        val reasons = mutableListOf<Pair<Provider, Failure>>()
+        val reasons = mutableListOf<Reason>()
         for ((provider, key) in engines) {
             try {
                 val text = when (provider) {
@@ -56,24 +68,73 @@ object CloudStt {
                     Provider.OPENAI -> openai(key, wav, lang)
                 }
                 if (text.isNotBlank()) return Outcome.Ok(text.trim(), provider)
-                reasons += provider to Failure.BAD_RESPONSE
+                reasons += Reason(provider, Failure.BAD_RESPONSE, "${provider.label} returned no text.")
             } catch (e: HttpFailure) {
-                reasons += provider to e.kind
+                reasons += Reason(provider, e.kind, e.message2 ?: describe(provider, e.kind), e.scope)
             } catch (_: Exception) {
-                reasons += provider to Failure.NETWORK
+                reasons += Reason(provider, Failure.NETWORK, describe(provider, Failure.NETWORK))
             }
         }
         return Outcome.Failed(reasons)
     }
 
-    private class HttpFailure(val kind: Failure) : Exception()
+    private class HttpFailure(val kind: Failure, val message2: String? = null, val scope: String? = null) : Exception()
+
+    fun describe(p: Provider, kind: Failure): String = when (kind) {
+        Failure.BAD_KEY -> "${p.label}: the API key was rejected."
+        Failure.RATE_LIMITED -> "${p.label}: the usage limit was reached."
+        Failure.SERVER -> "${p.label} had a server error."
+        Failure.NETWORK -> "Couldn't reach ${p.label}. Check the internet."
+        Failure.BAD_RESPONSE -> "${p.label} sent an unexpected reply."
+    }
+
+    /** Google's 429 names the quota and the wait; OpenAI's names `insufficient_quota` or a per-minute limit. */
+    fun limitMessage(p: Provider, body: String): Pair<String, String> {
+        val json = try { JSONObject(body) } catch (_: Exception) { JSONObject() }
+        var scope = "other"; var limit: String? = null; var retry: Int? = null
+        if (p == Provider.GEMINI) {
+            val details = json.optJSONObject("error")?.optJSONArray("details")
+            for (i in 0 until (details?.length() ?: 0)) {
+                val d = details!!.getJSONObject(i)
+                d.optJSONArray("violations")?.optJSONObject(0)?.let { v ->
+                    val id = v.optString("quotaId")
+                    scope = if (id.contains("PerDay")) "day" else if (id.contains("PerMinute")) "minute" else "other"
+                    limit = v.optString("quotaValue").ifBlank { null }
+                }
+                d.optString("retryDelay").takeIf { it.isNotBlank() }?.trimEnd('s')?.toDoubleOrNull()?.let { retry = Math.ceil(it).toInt() }
+            }
+        } else {
+            val err = json.optJSONObject("error")
+            val code = err?.optString("code").orEmpty()
+            scope = if (code == "insufficient_quota") "credit" else if (code.contains("rate_limit")) "minute" else "other"
+            Regex("try again in ([0-9.]+)(m?)s?").find(err?.optString("message").orEmpty())?.let {
+                val n = it.groupValues[1].toDoubleOrNull() ?: 0.0
+                retry = Math.ceil(if (it.groupValues[2] == "m") n * 60 else n).toInt()
+            }
+        }
+        val wait = retry?.let { " Try again in $it seconds." } ?: ""
+        val msg = when (scope) {
+            "credit" -> "${p.label} has no credit left on this key. Add credit, or use another engine."
+            "day" -> "${p.label}'s daily limit is used up${limit?.let { " ($it requests a day)" } ?: ""}. Google resets it at midnight Pacific Time."
+            "minute" -> "${p.label}'s per-minute limit was hit${limit?.let { " ($it a minute)" } ?: ""}.$wait"
+            else -> "${p.label}'s usage limit was reached.$wait"
+        }
+        return msg to scope
+    }
+
+    private fun failure(p: Provider, status: Int, body: String): HttpFailure {
+        val kind = if (body.contains("API_KEY_INVALID") || body.contains("API key not valid")) Failure.BAD_KEY
+        else if (body.contains("RESOURCE_EXHAUSTED") || body.contains("insufficient_quota")) Failure.RATE_LIMITED
+        else classify(status)
+        return if (kind == Failure.RATE_LIMITED) limitMessage(p, body).let { HttpFailure(kind, it.first, it.second) } else HttpFailure(kind)
+    }
 
     private fun gemini(key: String, wav: ByteArray, lang: String): String {
         val body = geminiBody(wav, lang).toString().toByteArray()
         val (status, resp) = post(
             "https://generativelanguage.googleapis.com/v1beta/models/$GEMINI_MODEL:generateContent",
             mapOf("x-goog-api-key" to key, "Content-Type" to "application/json"), body)
-        if (status !in 200..299) throw HttpFailure(classify(status))
+        if (status !in 200..299) throw failure(Provider.GEMINI, status, resp)
         return geminiText(JSONObject(resp)) ?: throw HttpFailure(Failure.BAD_RESPONSE)
     }
 
@@ -97,7 +158,7 @@ object CloudStt {
             "https://api.openai.com/v1/audio/transcriptions",
             mapOf("Authorization" to "Bearer $key", "Content-Type" to "multipart/form-data; boundary=$boundary"),
             openaiBody(wav, lang, boundary))
-        if (status !in 200..299) throw HttpFailure(classify(status))
+        if (status !in 200..299) throw failure(Provider.OPENAI, status, resp)
         return JSONObject(resp).optString("text")
     }
 

@@ -7,7 +7,8 @@
     <string name="need_mic">Allow the microphone in the Kothalipi app first</string>
     <string name="need_key">Add an API key in the Kothalipi app, or switch to On-device</string>
     <string name="nothing_heard">Didn\'t catch that. Try again.</string>
-    <string name="cloud_failed">Cloud unavailable. Using on-device for the next try.</string>
+    <string name="cloud_failed">Cloud unavailable.</string>
+    <string name="next_on_device">Using on-device for the next try.</string>
     <string name="lang_bn">বাংলা</string>
     <string name="lang_en">English</string>
 </resources>

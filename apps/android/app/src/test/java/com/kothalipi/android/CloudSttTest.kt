@@ -26,6 +26,26 @@ class CloudSttTest {
         assertEquals(null, CloudStt.geminiText(JSONObject("{}")))
     }
 
+    @Test fun geminiTranscribeModelReplyIsRead() {
+        val j = JSONObject("""{"candidates":[{"content":{"parts":[{"audioTranscription":{"text":"Hello hello."}}],"role":"model"}}]}""")
+        assertEquals("Hello hello.", CloudStt.geminiText(j))
+    }
+
+    @Test fun geminiDailyLimitIsDecoded() {
+        val body = """{"error":{"code":429,"status":"RESOURCE_EXHAUSTED","details":[
+            {"violations":[{"quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier","quotaValue":"20"}]},
+            {"retryDelay":"46s"}]}}"""
+        val (msg, scope) = CloudStt.limitMessage(com.kothalipi.android.data.Provider.GEMINI, body)
+        assertEquals("day", scope)
+        assertTrue(msg, msg.contains("daily limit") && msg.contains("20"))
+    }
+
+    @Test fun openAiNoCreditIsDecoded() {
+        val (msg, scope) = CloudStt.limitMessage(com.kothalipi.android.data.Provider.OPENAI, """{"error":{"code":"insufficient_quota"}}""")
+        assertEquals("credit", scope)
+        assertTrue(msg.contains("no credit"))
+    }
+
     @Test fun statusCodesMapToFailures() {
         assertEquals(Failure.BAD_KEY, CloudStt.classify(401))
         assertEquals(Failure.BAD_KEY, CloudStt.classify(403))

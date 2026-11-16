@@ -102,7 +102,7 @@ fun KothalipiApp(resumes: Int) {
                 },
                 label = "step",
             ) { s ->
-                if (s == null) Home(prefs) { engineChosen = false }
+                if (s == null) Home(prefs, resumes) { engineChosen = false }
                 else Setup(s, prefs, onEngineDone = { prefs.engineChosen = true; engineChosen = true })
             }
           }
@@ -251,7 +251,7 @@ private fun KeyField(label: String, value: String, onChange: (String) -> Unit) {
 // ---------------------------------------------------------------- home
 
 @Composable
-private fun Home(prefs: Prefs, changeEngine: () -> Unit) {
+private fun Home(prefs: Prefs, resumes: Int, changeEngine: () -> Unit) {
     val ctx = LocalContext.current
     var test by remember { mutableStateOf("") }
     val pulse = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -279,11 +279,35 @@ private fun Home(prefs: Prefs, changeEngine: () -> Unit) {
         }) {
             OutlinedButton(changeEngine, Modifier.fillMaxWidth()) { Text("Change engine or keys") }
         }
+        if (prefs.mode == Mode.CLOUD) UsageCard(prefs, resumes)
         StepCard("How to use", "Open any app and tap a text field. Tap the mic to start and tap again to finish, or hold it and let go. Use the বাংলা and English chips to pick the language. Long-press the globe key to switch keyboards.") {}
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Free and open source (MIT)", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton({ ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://kothalipi.tashanto.com"))) }) { Text("kothalipi.tashanto.com") }
             Text("Made by TA Shanto · tashanto.com", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        }
+    }
+}
+
+/** Today's cloud use per engine, and any limit the provider said it hit. */
+@Composable
+private fun UsageCard(prefs: Prefs, resumes: Int) {
+    val ctx = LocalContext.current
+    val engines = remember(resumes) { prefs.cloudEngines().map { it.first } }
+    StepCard("Usage today", "Providers don't share a key's remaining quota with apps. This is Kothalipi's own count; the provider's page shows the exact limit.") {
+        engines.forEach { p ->
+            val u = remember(resumes, p) { prefs.usage(p) }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(p.label, fontWeight = FontWeight.Medium)
+                    Text("${u.requests} requests · ${"%.1f".format(u.minutes)} min · ${u.failed} failed", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                u.limit?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
+            }
+            TextButton({
+                val url = if (p == Provider.GEMINI) "https://aistudio.google.com/usage" else "https://platform.openai.com/usage"
+                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }) { Text("${p.label} usage and limits") }
         }
     }
 }

@@ -150,7 +150,7 @@ class KothalipiIme : InputMethodService(), Dictation.Listener {
         ic.commitText(lead + text, 1)
     }
 
-    override fun onNotice(notice: Notice) {
+    override fun onNotice(notice: Notice, detail: String?) {
         when (notice) {
             Notice.NEED_MIC -> {
                 status.setText(R.string.need_mic)
@@ -158,10 +158,10 @@ class KothalipiIme : InputMethodService(), Dictation.Listener {
             }
             Notice.NEED_KEY -> status.setText(R.string.need_key)
             Notice.NOTHING_HEARD -> status.setText(R.string.nothing_heard)
-            Notice.CLOUD_FAILED -> status.setText(R.string.cloud_failed)
+            Notice.CLOUD_FAILED -> status.text = (detail ?: getString(R.string.cloud_failed)) + " " + getString(R.string.next_on_device)
             Notice.NO_ENGINE -> status.text = "On-device speech is not available on this phone."
         }
-        main.postDelayed({ if (dictation.state == State.IDLE) showIdle() }, 3500)
+        main.postDelayed({ if (dictation.state == State.IDLE) showIdle() }, if (notice == Notice.CLOUD_FAILED) 7000 else 3500)
     }
 
     // ---- keys

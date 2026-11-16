@@ -41,6 +41,44 @@ class Prefs(context: Context) {
         else sp.edit().putString("key_${p.id}", KeyVault.encrypt(v)).apply()
     }
 
+    // ---- today's cloud usage (Kothalipi's own count; providers don't share a key's remaining quota)
+
+    private fun today() = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+
+    private fun rollDay() {
+        if (sp.getString("usage_day", "") != today()) {
+            val e = sp.edit().putString("usage_day", today())
+            Provider.values().forEach { p ->
+                e.remove("u_${p.id}_req").remove("u_${p.id}_ok").remove("u_${p.id}_fail").remove("u_${p.id}_secs")
+                e.remove("limit_${p.id}")
+            }
+            e.apply()
+        }
+    }
+
+    data class Usage(val requests: Int, val failed: Int, val minutes: Float, val limit: String?)
+
+    fun usage(p: Provider): Usage {
+        rollDay()
+        return Usage(sp.getInt("u_${p.id}_req", 0), sp.getInt("u_${p.id}_fail", 0), sp.getFloat("u_${p.id}_secs", 0f) / 60f, sp.getString("limit_${p.id}", null))
+    }
+
+    fun recordOk(p: Provider, seconds: Float) {
+        rollDay()
+        sp.edit().putInt("u_${p.id}_req", sp.getInt("u_${p.id}_req", 0) + 1)
+            .putInt("u_${p.id}_ok", sp.getInt("u_${p.id}_ok", 0) + 1)
+            .putFloat("u_${p.id}_secs", sp.getFloat("u_${p.id}_secs", 0f) + seconds)
+            .remove("limit_${p.id}").apply()
+    }
+
+    fun recordFailed(p: Provider, limitMessage: String?) {
+        rollDay()
+        val e = sp.edit().putInt("u_${p.id}_req", sp.getInt("u_${p.id}_req", 0) + 1)
+            .putInt("u_${p.id}_fail", sp.getInt("u_${p.id}_fail", 0) + 1)
+        if (limitMessage != null) e.putString("limit_${p.id}", limitMessage)
+        e.apply()
+    }
+
     /** Cloud engines that have a key, in the order they are tried. */
     fun cloudEngines(): List<Pair<Provider, String>> =
         Provider.values().mapNotNull { p -> key(p)?.let { p to it } }
