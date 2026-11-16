@@ -54,7 +54,7 @@ Guides: [macOS](https://kothalipi.tashanto.com/docs/macos.html) ·
 
 | Repo | What |
 |---|---|
-| [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop) | **The app** for macOS, Windows and Linux. Built on [Handy](https://github.com/cjpais/Handy) with Bangla models, language keys, cloud fallback and a Kothalipi onboarding |
+| [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop) | **The app** for macOS, Windows and Linux: Bangla models, language keys, cloud fallback, guided setup |
 | **kothalipi** (this repo) | Shared Rust core for the coming mobile apps, CLI for model testing, docs, roadmap, brand |
 | [website](https://github.com/Kothalipi/website) | [kothalipi.tashanto.com](https://kothalipi.tashanto.com) and the install scripts |
 
@@ -73,6 +73,10 @@ cargo test --workspace
 cargo run -p kothalipi-cli -- transcribe samples/hello.wav --mode bangla --model models/ggml-small.bin
 ```
 
+## Made by
+
+**TA Shanto** · [tashanto.com](https://tashanto.com)
+
 ## Contributing
 
 We especially need:
@@ -86,4 +90,4 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUC
 
 ## License
 
-[MIT](LICENSE). The Hind Siliguri font in the logo is under the [SIL Open Font License](assets/brand/fonts/HindSiliguri-OFL.txt).
+[MIT](LICENSE). Credits and third-party notices: see the desktop app's `NOTICE.md` (it began from [Handy](https://github.com/cjpais/Handy) by CJ Pais, MIT). The Hind Siliguri font in the logo is under the [SIL Open Font License](assets/brand/fonts/HindSiliguri-OFL.txt).

@@ -6,7 +6,7 @@
   (`bun run dev` → `/?mock`, see `src/dev/mockTauri.ts` in kothalipi-desktop) on
   macOS / Windows looks, light and dark, and low / standard / high-memory devices.
 
-## Decision: keep Handy's engine, own the experience
+## Decision: keep the proven engine, own the experience
 
 Rewriting in "raw Rust" with a native GUI was considered and rejected for now:
 
@@ -21,13 +21,21 @@ Rewriting in "raw Rust" with a native GUI was considered and rejected for now:
 
 | Area | Problem | Fix |
 |---|---|---|
-| Brand | Handy pink accents everywhere, Handy glove mascot, hand tray icon in the demo | Bangladesh green for actions, flag red for recording, Kothalipi bubble mascot and tray icon |
+| Brand | Inherited pink accents, mascot and tray icon | Bangladesh green for actions, flag red for recording, Kothalipi bubble mascot and tray icon |
 | Onboarding | One model per language, no guidance | Device-aware picks: reads memory, cores and chip; "Best for this computer" badge; alternatives under "Other models" |
 | Onboarding | Low-memory computers pushed to a large offline model | 4 GB machines see Cloud marked "Recommended for this computer" |
 | Onboarding | Download button icon stacked above its label | Inline icon + label |
 | Keys | "Hold ⌘ and talk" didn't say which Command key | One-sided keys read "Right ⌘", "Right Alt" |
 | Release | Unsigned macOS builds failed: empty `APPLE_CERTIFICATE` made Tauri try to import a certificate | Signing variables exported only when signing |
 | Dev | UI could only be seen in a native build | `/?mock` browser preview with fixtures generated from Rust defaults |
+
+## Done in the following pass
+
+- Product is Kothalipi everywhere (binary, config, paths, UI, docs, installers); the engine
+  credit lives in About, README, NOTICE and LICENSE. Dev credit: TA Shanto, tashanto.com.
+- Bangla interface (partial: core screens; the rest falls back to English).
+- Recording pill shows **BN** / **EN** for the active key.
+- Website: download page, docs for every OS, terminal installers, privacy; HTTPS.
 
 ## Next, by priority
 

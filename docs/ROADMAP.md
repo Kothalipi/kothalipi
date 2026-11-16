@@ -12,10 +12,10 @@ Order matters: prove Bangla accuracy first, then build UIs.
 - [ ] Pick the default Bangla model
 - [ ] In-process whisper.cpp (whisper-rs) instead of a subprocess
 
-## Phase 2: Desktop app (macOS, Windows, Linux), built on Handy
-See [decision 0001](decisions/0001-desktop-on-handy.md) and
+## Phase 2: Desktop app (macOS, Windows, Linux)
+See [decision 0001](decisions/0001-desktop-architecture.md) and
 [kothalipi-desktop](https://github.com/Kothalipi/kothalipi-desktop).
-- [x] Fork Handy, rebrand, new app id
+- [x] App id, branding, installers for all three OSes
 - [x] Bangla models first: Qwen3-ASR 0.6B Bangla, Bengali.AI Whisper medium
 - [x] Per-language keys (Bangla / English), each with its own model
 - [x] Cloud mode: Gemini → OpenAI → offline fallback, key checks
