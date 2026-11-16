@@ -1,0 +1,10 @@
+<resources>
+    <string name="ime_label">কথালিপি ভয়েস কিবোর্ড</string>
+    <string name="tap_to_speak">বলতে ট্যাপ করুন</string>
+    <string name="listening">শুনছি… শেষ হলে ট্যাপ করুন</string>
+    <string name="working">লিখছি…</string>
+    <string name="need_mic">আগে কথালিপি অ্যাপে মাইক্রোফোনের অনুমতি দিন</string>
+    <string name="need_key">কথালিপি অ্যাপে API কি যোগ করুন, অথবা অন-ডিভাইস বাছুন</string>
+    <string name="nothing_heard">শোনা যায়নি। আবার চেষ্টা করুন।</string>
+    <string name="cloud_failed">ক্লাউড পাওয়া যাচ্ছে না। পরের বার অন-ডিভাইস ব্যবহার হবে।</string>
+</resources>

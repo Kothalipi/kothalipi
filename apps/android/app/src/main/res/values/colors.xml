@@ -1,0 +1,10 @@
+<resources>
+    <color name="green">#006A4E</color>
+    <color name="green_dark">#00513C</color>
+    <color name="record">#F42A41</color>
+    <color name="kb_bg">#F1EEE8</color>
+    <color name="key_bg">#FFFFFF</color>
+    <color name="key_ink">#14231C</color>
+    <color name="muted">#5B6B63</color>
+    <color name="chip_on">#D9EFE6</color>
+</resources>
