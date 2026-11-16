@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+}
+
+// Release signing: the key lives outside the repo (~/.kothalipi-keys/android.properties).
+val signingProps = Properties().apply {
+    val f = file(System.getProperty("user.home") + "/.kothalipi-keys/android.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -16,10 +24,23 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        if (signingProps.containsKey("storeFile")) {
+            create("release") {
+                storeFile = file(signingProps.getProperty("storeFile"))
+                storePassword = signingProps.getProperty("storePassword")
+                keyAlias = signingProps.getProperty("keyAlias")
+                keyPassword = signingProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+            // Beta builds ship un-minified: the exact code path tested on a device.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
